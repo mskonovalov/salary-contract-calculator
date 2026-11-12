@@ -20,7 +20,7 @@
 <div class="modes" role="group" aria-label="Calculation direction"><label><input type="radio" name="mode" value="salary" checked> Salary → rate</label><label><input type="radio" name="mode" value="rate"> Rate → salary</label></div>
 <div id="salary-field" class="primary-field"><label class="field" for="salary">Annual employee salary</label><div class="input"><span>$</span><input id="salary" type="number" min="0" step="any" value="150000" inputmode="decimal"></div><p class="hint">Gross base salary, before tax and excluding super.</p></div>
 <div id="rate-field" class="primary-field" hidden><label class="field" for="rate">Contract day rate</label><div class="input"><span>$</span><input id="rate" type="number" min="0" step="any" value="682" inputmode="decimal"></div><p class="hint">Cash rate before GST; super treatment is selected below.</p></div>
-<div class="assumptions"><div class="assumptions-title" id="assumptions-title">Assumptions · change only if needed</div><label class="field" for="super-mode">How is contract super paid?</label><select id="super-mode"><option value="on-top">Client pays super on top</option><option value="self">I fund super from my rate</option></select><p class="hint">Check your contract: some contractors are entitled to client-paid super.</p>
+<div class="assumptions"><div class="assumptions-title" id="assumptions-title">Assumptions · change only if needed</div><div id="super-mode-field" hidden><label class="field" for="super-mode">How is contract super paid?</label><select id="super-mode"><option value="on-top">Client pays super on top</option><option value="self">I fund super from my rate</option></select><p class="hint">Check your contract: some contractors are entitled to client-paid super.</p></div>
 <div class="grid"><div><label class="field" for="days">Billable days / year</label><div class="input"><input id="days" type="number" min="1" max="366" step="1" value="220" inputmode="numeric"></div></div><div><label class="field" for="super">Super rate</label><div class="input"><input id="super" type="number" min="0" max="100" step="0.1" value="12" inputmode="decimal"><span style="padding:0 13px 0 0">%</span></div></div></div><p class="hint">220 allows for 20 annual leave days, 10 sick days and about 10 public holidays. Reduce it for gaps or admin.</p>
 <label class="field" for="costs">Annual business costs</label><div class="input"><span>$</span><input id="costs" type="number" min="0" step="any" value="0" inputmode="decimal"></div><p class="hint">E.g. insurance, accounting and equipment. Use costs net of any GST credits.</p>
 <label class="check"><input type="checkbox" id="gst" checked> Add GST to the cash rate</label><p class="hint">For taxable invoices when registered or required to register. GST is not income.</p>
@@ -38,7 +38,7 @@ const form = document.querySelector('main');
 function update() {
   const mode = document.querySelector('input[name="mode"]:checked').value;
   const salaryMode = mode === 'salary';
-  const selfFunded = byId('super-mode').value === 'self';
+  const selfFunded = !salaryMode && byId('super-mode').value === 'self';
   const salaryInput = byId('salary');
   const rateInput = byId('rate');
   const daysInput = byId('days');
@@ -49,6 +49,7 @@ function update() {
   byId('assumptions-title').textContent = salaryMode ? 'Assumptions · change only if needed' : 'Your contract details';
   byId('salary-field').hidden = !salaryMode;
   byId('rate-field').hidden = salaryMode;
+  byId('super-mode-field').hidden = salaryMode;
   byId('error').hidden = valid;
   byId('error').textContent = valid ? '' : 'Enter valid non-negative amounts and between 1 and 366 billable days.';
   if (!valid) {
